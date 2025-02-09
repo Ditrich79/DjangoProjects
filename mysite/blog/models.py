@@ -3,6 +3,16 @@ from django.db import models
 from django.utils import timezone
 
 
+class PublishedManager(models.Manager):
+    """
+    Конкретно-прикладной менеджер, чтобы извлекать все посты, имеющие статус PUBLISHED
+    """
+    def get_queryset(self):
+        return (
+            super().get_queryset().filter(status=Post.Status.PUBLISHED)
+        )
+
+
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
@@ -24,6 +34,8 @@ class Post(models.Model):
         choices=Status.choices,
         default=Status.DRAFT
     )
+    objects = models.Manager()  # Дефолтный менеджер
+    published = PublishedManager()  # Конкретно-прикладной менеджер
 
     def __str__(self):
         return self.title
